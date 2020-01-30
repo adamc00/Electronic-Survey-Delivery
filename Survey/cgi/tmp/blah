@@ -1,0 +1,1 @@
+local $templ_message = HTML::Template->new(filename => '../tmpl/dineguide_message.tmpl');
