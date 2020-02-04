@@ -22,6 +22,4 @@ COPY app/db/*.csv /usr/local/apache2/db/
 RUN cd /usr/local/apache2/db && \
     sqlite3 survey.db < schema.sql && \
     rm schema.sql *.csv && \
-    chown daemon:daemon /usr/local/apache2/db/survey.db && \
-    chmod u+rw /usr/local/apache2/db && \
-    chmod u+rw /usr/local/apache2/db/survey.db
+    chown -R daemon:daemon /usr/local/apache2/db
