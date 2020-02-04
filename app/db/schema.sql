@@ -1,3 +1,5 @@
+.mode csv
+
 CREATE TABLE Login (
   ID              INTEGER PRIMARY KEY,
   Password        TEXT,
@@ -11,8 +13,6 @@ CREATE TABLE Login (
   emp_stat        INTEGER -- full/part/casual/contract
 );
 
-.mode csv
-.headers on
 .import Login.csv Login
 
 CREATE TABLE Questions (
@@ -29,8 +29,6 @@ CREATE TABLE Questions (
   Blurb           TEXT
 );
 
-.mode csv
-.headers on
 .import Questions.csv Questions
 
 CREATE TABLE Data (
@@ -40,6 +38,4 @@ CREATE TABLE Data (
   StoredValue   INTEGER
 );
 
-.mode csv
-.headers on
 .import Data.csv Data
