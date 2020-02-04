@@ -14,7 +14,7 @@ COPY httpd.conf /usr/local/apache2/conf/httpd.conf
 
 COPY app/cgi/ /usr/local/apache2/cgi-bin/
 COPY app/tmpl/ /usr/local/apache2/tmpl/
-COPY app/Images/ /usr/local/apache2/htdocs/images
+COPY app/images/ /usr/local/apache2/htdocs/images
 COPY app/*.html /usr/local/apache2/htdocs/
 
 COPY app/db/schema.sql /usr/local/apache2/db/schema.sql
