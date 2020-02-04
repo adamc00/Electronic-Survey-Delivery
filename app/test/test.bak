@@ -1,9 +1,0 @@
-
-$yeah = 'afjlfjf';
-
-$blah = qq(
-Mary had a little lamb
-<"$yeah">
-);
-
-print $blah;
