@@ -25,8 +25,8 @@ my $user_id = $query->param('user_id');
 
 if ($query->param('me') eq 'LOGIN') {
 
-    my $user_id 		= $query->param('user_id');
-    my $user_password 	= $query->param('user_password');
+    my $user_id       = $query->param('user_id');
+    my $user_password = $query->param('user_password');
 
     if ($user_id eq "") {
         $templ_message->param('HEADING', 'Login Failure !');
@@ -41,8 +41,6 @@ if ($query->param('me') eq 'LOGIN') {
         exit;
     }
     else {
-
-        warn "$user_id, $user_password\n";
 
         if (! confirm_login($user_id, $user_password)) {
             $templ_message->param('HEADING', 'Login Failure !');
@@ -61,53 +59,53 @@ elsif ($query->param('me') eq 'DEMOGRAPHICS') {
     }
 
     $strSQL = q(
-    UPDATE Login
-    SET gender = ?,
-    age = ?,
-    working_years = ?,
-    working_months = ?,
-    job_years = ?,
-    job_months = ?,
-    emp_stat = ?
-    WHERE UserID=?
+        UPDATE Login
+        SET gender = ?,
+        age = ?,
+        working_years = ?,
+        working_months = ?,
+        job_years = ?,
+        job_months = ?,
+        emp_stat = ?
+        WHERE UserID=?
     );
 
     $sth = $dbh->prepare($strSQL) or
     	print "$DBI::errstr";
 
     $rv = $sth->execute(
-    $query->param('gender'),
-    $query->param('age'),
-    $query->param('working_years'),
-    $query->param('working_months'),
-    $query->param('job_years'),
-    $query->param('job_months'),
-    $query->param('emp_stat'),
-    $user_id) or
-    	print "$DBI::errstr";
+        scalar $query->param('gender'),
+        scalar $query->param('age'),
+        scalar $query->param('working_years'),
+        scalar $query->param('working_months'),
+        scalar $query->param('job_years'),
+        scalar $query->param('job_months'),
+        scalar $query->param('emp_stat'),
+        $user_id
+    ) or print "$DBI::errstr";
 
     	#RENDER QUESTION 1;
 }
 else {
     # STORE QUESTION
     if ($query->param('score')) {
-    $strSQL = "DELETE * FROM Data where UserID=? and Item=?";
-    $sth = $dbh->prepare($strSQL) or
-    print "$DBI::errstr";
 
-    $rv = $sth->execute($user_id, $query->param('me')) or
-    print "$DBI::errstr";
+        $strSQL = "DELETE FROM Data where UserID=? and Item=?";
+        $sth = $dbh->prepare($strSQL) or
+               print "$DBI::errstr";
 
-    $strSQL = 'INSERT INTO Data (UserID,Item,StoredValue) VALUES (?,?,?)';
-    $sth = $dbh->prepare($strSQL) or
-    print "$DBI::errstr";
+        $rv = $sth->execute($user_id, scalar $query->param('me')) or
+              print "$DBI::errstr";
 
-    $rv = $sth->execute (
-        $user_id,
-        $query->param('me'),
-        $query->param('score')
-    ) or
-        print "$DBI::errstr";
+        $strSQL = 'INSERT INTO Data (UserID,Item,StoredValue) VALUES (?,?,?)';
+        $sth = $dbh->prepare($strSQL) or
+               print "$DBI::errstr";
+
+        $rv = $sth->execute (
+            $user_id,
+            scalar $query->param('me'),
+            scalar $query->param('score')
+        ) or print "$DBI::errstr";
     }
 }
 
@@ -132,7 +130,11 @@ else {
         print $templ_message->output;
     }
 
-    render_question($query->param('user_id'),$query->param('me'),$action);
+    render_question(
+        scalar $query->param('user_id'),
+        scalar $query->param('me'),
+        $action
+    );
 
     exit;
 
@@ -157,8 +159,6 @@ sub confirm_login {
           print "$DBI::errstr";
 
     $sth->fetchall_arrayref;
-
-    warn "rows: " . $sth->rows . "\n";
 
     $rv = $sth->rows;
 }
@@ -189,7 +189,10 @@ sub render_question {
 
     #SET UP TEMPLATES
     local $templ_question = HTML::Template->new(filename => '../tmpl/survey_question.tmpl');
-    $templ_question->param('user_id', $query->param('user_id'));
+    $templ_question->param(
+        'user_id',
+        scalar $query->param('user_id')
+    );
 
     if ( $action eq "NEXT" ) {
         if ($quest_no == $max_q) {
@@ -234,8 +237,10 @@ sub render_question {
     $sth_data = $dbh->prepare($strSQL) or
     print "$DBI::errstr";
 
-    $rv = $sth_data->execute($query->param('user_id'),$new_me) or
-    print "$DBI::errstr";
+    $rv = $sth_data->execute(
+        scalar $query->param('user_id'),
+        $new_me
+    ) or print "$DBI::errstr";
 
     my $scale_value;
     if ( my $data_arrayref = $sth_data->fetchrow_arrayref ) {
