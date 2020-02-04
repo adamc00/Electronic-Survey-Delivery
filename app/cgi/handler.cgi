@@ -1,4 +1,4 @@
-#!C:\perl\bin\perl.exe
+#!/usr/bin/env perl
 
 use DBI;
 use CGI;
