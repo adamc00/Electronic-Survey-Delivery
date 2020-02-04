@@ -14,6 +14,9 @@ issues have been fixed but it is otherwise it is as it was found.
 
 ## Check it out
 
-`docker-compose up --build`
+`docker-compose up --detach --build`
 
 `open http://localhost:8080`
+
+Username: `0001 - 0010`
+Passwords:`pw1  - pw10`
