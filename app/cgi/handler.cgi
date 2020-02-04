@@ -11,14 +11,14 @@ local $templ_message = HTML::Template->new(filename => '../tmpl/survey_message.t
 print $query->header;
 
 $DSNstr = 'ODBC:survey';
-if (! (local $dbh = DBI->connect("DBI:$DSNstr", $user, $passwd) )) 
+if (! (local $dbh = DBI->connect("DBI:$DSNstr", $user, $passwd) ))
 {
   $templ_message->param('HEADING', 'Unable to connect to Database !');
-  $templ_message->param('MESSAGE', 'Please report this error.');  
+  $templ_message->param('MESSAGE', 'Please report this error.');
   print $templ_message->output;
   exit;
 }
-$dbh->{LongReadLen} = 500; 
+$dbh->{LongReadLen} = 500;
 
 my $user_id = $query->param('user_id');
 
@@ -53,23 +53,23 @@ if ($query->param('me') eq 'LOGIN')
 		  	print $templ_message->output;
 		}
 	}
-} 
+}
 elsif ($query->param('me') eq 'DEMOGRAPHICS')
 {
 	#STORE DEMOGRAPHICS
-	if ( $DEBUG ) 
+	if ( $DEBUG )
 	{
 		print "STORE DEMOGRAPHICS";
 		print $query->dump;
 	}
 
 	$strSQL = q(
-		UPDATE Login 
-		SET gender = ?, 
+		UPDATE Login
+		SET gender = ?,
 		age = ?,
-		working_years = ?,		
+		working_years = ?,
 		working_months = ?,
-		job_years = ?,		
+		job_years = ?,
 		job_months = ?,
 		emp_stat = ?
 		WHERE UserID=?
@@ -79,17 +79,17 @@ elsif ($query->param('me') eq 'DEMOGRAPHICS')
     	print "$DBI::errstr";
 
 	$rv = $sth->execute(
-		$query->param('gender'),		
+		$query->param('gender'),
 		$query->param('age'),
 		$query->param('working_years'),
 		$query->param('working_months'),
 		$query->param('job_years'),
 		$query->param('job_months'),
-		$query->param('emp_stat'),	
+		$query->param('emp_stat'),
 		$user_id) or
     	print "$DBI::errstr";
-    	
-    	#RENDER QUESTION 1; 
+
+    	#RENDER QUESTION 1;
 } else
 {
 	# STORE QUESTION
@@ -107,8 +107,8 @@ elsif ($query->param('me') eq 'DEMOGRAPHICS')
 
 		$rv = $sth->execute
 		(
-			$user_id, 
-			$query->param('me'), 
+			$user_id,
+			$query->param('me'),
 			$query->param('score')
 		) or
 		print "$DBI::errstr";
@@ -120,17 +120,17 @@ if ( $query->param('goto') eq 'DEMOGRAPHICS' )
 	#RENDER DEMOGRAPHICS
 	&render_demographics;
 	exit;
-} 
+}
 else
 {
 	#RENDER ORDINARY QUESTION
 	my $action;
-	
-	if ( $query->param('navNext.x') ) 
+
+	if ( $query->param('navNext.x') )
 	{
 		$action = "NEXT";
 	}
-	elsif ( $query->param('navPrev.x') ) 
+	elsif ( $query->param('navPrev.x') )
 	{
 		$action = "PREVIOUS";
 	}
@@ -140,10 +140,10 @@ else
 		$templ_message->param('MESSAGE', 'Please report this error.');
 		print $templ_message->output;
 	}
-	
+
 	render_question($query->param('user_id'),$query->param('me'),$action);
 	exit;
-	
+
 }
 
 #Shouldn't get here
@@ -164,7 +164,7 @@ sub confirm_login
 
   $rv = $sth->execute($user_id, $user_password) or
 	      print "$DBI::errstr";
-  
+
   $rv = $sth->rows;
 }
 
@@ -173,7 +173,7 @@ sub render_question
 	my ($user_id, $me, $action) = @_;
 	my $quest_no = 0;
 	my $max_q = -1;
-	
+
 	$strSQL = "SELECT Item, QuestOrder FROM Questions order by QuestOrder";
 
 	$sth = $dbh->prepare($strSQL) or
@@ -188,17 +188,17 @@ sub render_question
 
 	foreach $row_ref (@$array_ref)
 	{
-		if ( $$row_ref[0] eq $me ) 
-		{ 
+		if ( $$row_ref[0] eq $me )
+		{
 			$quest_no=$$row_ref[1];
-			last 
+			last
 		};
 	}
 
 	#SET UP TEMPLATES
 	local $templ_question = HTML::Template->new(filename => '../tmpl/survey_question.tmpl');
 	$templ_question->param('user_id', $query->param('user_id'));
-	
+
 	if ( $action eq "NEXT" )
 	{
 		if ($quest_no == $max_q)
@@ -217,7 +217,7 @@ sub render_question
 		}
 	}
 	elsif ( $action eq "PREVIOUS" )
-	{	
+	{
 		if (--$quest_no == 0)
 		{
 			#RENDER DEMOGRAPHICS
@@ -273,22 +273,22 @@ sub render_question
 	$templ_question->param('HEADING', $tmp_hash->{'Section'});
 	$templ_question->param('MESSAGE', $tmp_hash->{'Blurb'});
 	$templ_question->param(
-		'QUESTION', 
+		'QUESTION',
 		$tmp_hash->{'Question_no'} . ". " .
 		$tmp_hash->{'Question'}
-		);	
+		);
 	$templ_question->param('LEFT_TEXT', $tmp_hash->{'Scale_min_label'});
 	$templ_question->param('RIGHT_TEXT', $tmp_hash->{'Scale_max_label'});
 	$templ_question->param('SCALE', $scale_html);
-	
-	
+
+
 
 	if ( $DEBUG ) {
 		print $query->dump;
 	}
-	
+
 	print $templ_question->output;
-	$templ_question->param('SCALE', $scale_html);	
+	$templ_question->param('SCALE', $scale_html);
 }
 
 
@@ -301,14 +301,14 @@ sub render_demographics
 
 	$rv = $sth->execute($user_id) or
 		print "$DBI::errstr";
- 
+
  	my $tmp_hash = $sth->fetchrow_hashref;
  	my $db_password = $tmp_hash->{'Password'};
 
 
 	local $templ_demographics = HTML::Template->new(filename => '../tmpl/demographics.tmpl');
 	$templ_demographics->param('user_id', $user_id);
-	
+
 	if ($tmp_hash->{'gender'} eq 'F') {
 		$templ_demographics->param('F_CHK', "Checked");
 		$templ_demographics->param('M_CHK', "");
@@ -317,14 +317,14 @@ sub render_demographics
 		$templ_demographics->param('M_CHK', "Checked");
 		$templ_demographics->param('F_CHK', "");
 	}
-		
-	$templ_demographics->param('AGE', $tmp_hash->{'age'});	
-	$templ_demographics->param('WORKING_YEARS', $tmp_hash->{'working_years'});	
-	$templ_demographics->param('WORKING_MONTHS', $tmp_hash->{'working_months'});	
-	$templ_demographics->param('JOB_YEARS', $tmp_hash->{'job_years'});	
-	$templ_demographics->param('JOB_MONTHS', $tmp_hash->{'job_months'});	
-	$templ_demographics->param('JOB_MONTHS', $tmp_hash->{'job_months'});	
-	
+
+	$templ_demographics->param('AGE', $tmp_hash->{'age'});
+	$templ_demographics->param('WORKING_YEARS', $tmp_hash->{'working_years'});
+	$templ_demographics->param('WORKING_MONTHS', $tmp_hash->{'working_months'});
+	$templ_demographics->param('JOB_YEARS', $tmp_hash->{'job_years'});
+	$templ_demographics->param('JOB_MONTHS', $tmp_hash->{'job_months'});
+	$templ_demographics->param('JOB_MONTHS', $tmp_hash->{'job_months'});
+
 	if ($tmp_hash->{'emp_stat'} eq 'full') {
 		$templ_demographics->param('FULL_CHK', "Checked");
 		$templ_demographics->param('PART_CHK', "");
@@ -350,7 +350,7 @@ sub render_demographics
 		$templ_demographics->param('CONTRACT_CHK', "Checked");
 	}
 	print $templ_demographics->output;
-	if ($DEBUG) 
+	if ($DEBUG)
 	{
 		print "RENDER DEMOGRAPHICS";
 		print $query->dump;
@@ -370,7 +370,7 @@ my $checked;
 
 $generated_html = qq(
 <table border="0" cellspacing="0" cellpadding="0" align="center">
-  <tr valign="bottom"> 
+  <tr valign="bottom">
     <td align="right"><img src="../images/lineend.gif" width="12" height="1"></td>
     <td colspan="$top_line_colspan" align="center" bgcolor="#000000"><img src="../images/spacer.gif" width="50" height="1"></td>
     <td align="left"><img src="../images/lineend.gif" width="12" height="1"></td>
@@ -388,7 +388,7 @@ for ($x=$start_value;$x < ($start_value+$num_choices)-2;$x++)
   );
   }
 
-if ($default eq $start_value) 
+if ($default eq $start_value)
 {
 	$checked = "checked";
 }
@@ -400,8 +400,8 @@ else
 $generated_html .= qq(
     <td align="left"><img src="../images/fullmark.gif" width="12" height="10"></td>
   </tr>
-  <tr> 
-    <td align="center"> 
+  <tr>
+    <td align="center">
       <input type="radio" name="$button_names" value="$start_value" $checked>
     </td>
     <td><img src="../images/spacer.gif" height="15"></td>
@@ -409,7 +409,7 @@ $generated_html .= qq(
 
 for ($x=$start_value+1;$x < ($start_value+$num_choices)-1;$x++)
   {
-	if ($default eq $x) 
+	if ($default eq $x)
 	{
 		$checked = "checked";
 	}
@@ -419,14 +419,14 @@ for ($x=$start_value+1;$x < ($start_value+$num_choices)-1;$x++)
 	}
 
   $generated_html .= qq (
-    <td> 
+    <td>
       <input type="radio" name="$button_names" value="$x" $checked>
     </td>
     <td><img src="../images/spacer.gif"  height="15"></td>
   );
   }
 
-if ($default eq $x) 
+if ($default eq $x)
 {
 	$checked = "checked";
 }
@@ -436,11 +436,11 @@ else
 }
 
 $generated_html .= qq(
-    <td align="center"> 
+    <td align="center">
       <input type="radio" name="$button_names" value="$x" $checked>
     </td>
   </tr>
-  <tr align="center" valign="middle"> 
+  <tr align="center" valign="middle">
 );
 
 $generated_html .= qq(
