@@ -1,6 +1,6 @@
 # Electronic Survey Delivery
 
-This is an early incarnation of WebSuvey form circa mid 2000.
+This is an early incarnation of WebSuvey circa mid 2000.
 
 Written in Perl 5 with a dash of 4 (see &'s in front of a function calls) by
 AC to win our first survey job.
